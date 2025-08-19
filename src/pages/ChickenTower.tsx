@@ -170,7 +170,7 @@ const ChickenTower = () => {
                     {/* Next step indicator */}
                     {isNext && isGameActive && !gameOver && (
                       <div className="absolute -right-2 text-lg animate-pulse">
-                        ⬆️
+                        ↑
                       </div>
                     )}
                   </div>
