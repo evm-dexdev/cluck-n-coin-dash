@@ -18,6 +18,7 @@ const ChickenTower = () => {
   const [gameOver, setGameOver] = useState(false);
   const [currentWinnings, setCurrentWinnings] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [betPlaced, setBetPlaced] = useState(false);
 
   // Tower steps with increasing multipliers
   const steps: TowerStep[] = [
@@ -33,15 +34,21 @@ const ChickenTower = () => {
     { id: 9, multiplier: 3.28, hasFire: false },
   ];
 
-  const startGame = useCallback(() => {
-    if (betAmount > balance) return;
+  const placeBet = useCallback(() => {
+    if (betAmount <= 0 || betAmount > balance) return;
     
     setBalance(prev => prev - betAmount);
+    setBetPlaced(true);
+  }, [betAmount, balance]);
+
+  const startGame = useCallback(() => {
+    if (!betPlaced) return;
+    
     setIsGameActive(true);
     setGameOver(false);
     setCurrentStep(0);
     setCurrentWinnings(betAmount);
-  }, [betAmount, balance]);
+  }, [betPlaced, betAmount]);
 
   const jumpToNextStep = useCallback(() => {
     if (!isGameActive || gameOver || isAnimating || currentStep >= steps.length - 1) return;
@@ -56,6 +63,7 @@ const ChickenTower = () => {
         setGameOver(true);
         setIsGameActive(false);
         setCurrentWinnings(0);
+        setBetPlaced(false);
       } else {
         const nextStep = currentStep + 1;
         setCurrentStep(nextStep);
@@ -71,6 +79,7 @@ const ChickenTower = () => {
     setBalance(prev => prev + currentWinnings);
     setIsGameActive(false);
     setGameOver(false);
+    setBetPlaced(false);
   }, [isGameActive, gameOver, currentWinnings]);
 
   const resetGame = useCallback(() => {
@@ -78,6 +87,7 @@ const ChickenTower = () => {
     setGameOver(false);
     setCurrentStep(0);
     setCurrentWinnings(0);
+    setBetPlaced(false);
   }, []);
 
   return (
@@ -206,12 +216,12 @@ const ChickenTower = () => {
                   <button
                     key={amount}
                     onClick={() => setBetAmount(amount)}
-                    disabled={isGameActive}
+                    disabled={isGameActive || betPlaced}
                     className={`px-3 py-1 rounded text-sm border ${
                       betAmount === amount 
                         ? 'bg-farm-gold/30 border-farm-gold text-farm-gold' 
                         : 'bg-white/10 border-white/30 hover:bg-white/20'
-                    } ${isGameActive ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    } ${isGameActive || betPlaced ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     {amount}
                   </button>
@@ -223,7 +233,7 @@ const ChickenTower = () => {
                 max={balance}
                 value={betAmount}
                 onChange={(e) => setBetAmount(Math.min(Number(e.target.value), balance))}
-                disabled={isGameActive}
+                disabled={isGameActive || betPlaced}
                 className="w-full p-2 rounded bg-white/10 border border-white/30 text-white"
                 placeholder="Custom amount"
               />
@@ -231,10 +241,20 @@ const ChickenTower = () => {
 
             {/* Game Actions */}
             <div className="flex flex-col gap-2">
-              {!isGameActive && !gameOver && (
+              {!betPlaced && !isGameActive && !gameOver && (
+                <Button
+                  onClick={placeBet}
+                  disabled={betAmount <= 0 || betAmount > balance}
+                  size="lg"
+                  className="bg-farm-gold hover:bg-farm-gold/80 text-farm-earth font-bold"
+                >
+                  PLACE BET ({betAmount} SOL)
+                </Button>
+              )}
+
+              {betPlaced && !isGameActive && !gameOver && (
                 <Button
                   onClick={startGame}
-                  disabled={betAmount <= 0 || betAmount > balance}
                   size="lg"
                   className="bg-green-600 hover:bg-green-700 text-white font-bold"
                 >
