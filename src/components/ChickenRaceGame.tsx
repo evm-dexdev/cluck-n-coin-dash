@@ -1,4 +1,6 @@
 import { useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Button } from './ui/button';
 import RaceTrack from './RaceTrack';
 import BettingPanel from './BettingPanel';
 import GameStats from './GameStats';
@@ -11,6 +13,7 @@ export interface Chicken {
 }
 
 const ChickenRaceGame = () => {
+  const navigate = useNavigate();
   // Game state
   const [balance, setBalance] = useState(1000);
   const [selectedChicken, setSelectedChicken] = useState<number | null>(null);
@@ -104,9 +107,17 @@ const ChickenRaceGame = () => {
   return (
     <div className="container mx-auto px-4 py-6 space-y-6">
       <div className="text-center mb-8">
-        <h1 className="text-4xl md:text-6xl font-bold text-white mb-2 drop-shadow-lg">
-          🐔 SOLANA CHICKEN RUN 🐔
-        </h1>
+        <div className="flex items-center justify-center gap-4 mb-4">
+          <h1 className="text-4xl md:text-6xl font-bold text-white drop-shadow-lg">
+            🐔 SOLANA CHICKEN RUN 🐔
+          </h1>
+          <Button
+            onClick={() => navigate('/tower')}
+            className="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2"
+          >
+            🔥 Play Tower Game
+          </Button>
+        </div>
         <p className="text-xl text-white/80 drop-shadow">
           Place your bets and watch the chickens race!
         </p>
